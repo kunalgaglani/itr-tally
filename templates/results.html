@@ -1,0 +1,244 @@
+{% extends "base.html" %}
+{% import "_macros.html" as m %}
+{% block title %}ITR Tally - Results{% endblock %}
+{% block tagline %}Reconciliation report{% endblock %}
+
+{% block content %}
+  <div class="page-head">
+    <h1>Tally results</h1>
+    <p class="subtitle">Every row is one MainSheet transaction. Click a tile below to filter, or expand "Show broker rows" to see exactly which broker rows were summed to produce each value.</p>
+    <div class="legend">
+      <span>{{ m.status_icon('ok') }} Clean - amounts (and units) tie out exactly</span>
+      <span>{{ m.status_icon('mismatch') }} Rows matched, but amount/units differ</span>
+      <span>{{ m.status_icon('approx') }} Multiple rows per company - exact split not found</span>
+      <span>{{ m.status_icon('error') }} No broker match, or nothing left to assign</span>
+    </div>
+  </div>
+
+  <div class="tabbar">
+    <button class="tab-btn active" data-tab-target="ltcg">
+      Long-Term (LTCG)
+      <span class="tab-count">{{ ltcg_summary.total }}</span>
+    </button>
+    <button class="tab-btn" data-tab-target="stcg">
+      Short-Term (STCG)
+      <span class="tab-count">{{ stcg_summary.total }}</span>
+    </button>
+  </div>
+
+  <div class="tab-panel active" data-tab-panel="ltcg">
+    <div class="stat-row" data-filter-section="ltcg">
+      <button class="stat-tile active" data-filter="all">
+        <div class="stat-value">{{ ltcg_summary.total }}</div>
+        <div class="stat-label">All rows</div>
+      </button>
+      <button class="stat-tile" data-filter="ok">
+        <div class="stat-value">{{ ltcg_summary.ok }}</div>
+        <div class="stat-label">{{ m.status_icon('ok') }} Clean</div>
+      </button>
+      <button class="stat-tile" data-filter="mismatch">
+        <div class="stat-value">{{ ltcg_summary.mismatch }}</div>
+        <div class="stat-label">{{ m.status_icon('mismatch') }} Mismatch</div>
+      </button>
+      <button class="stat-tile" data-filter="approx">
+        <div class="stat-value">{{ ltcg_summary.approx }}</div>
+        <div class="stat-label">{{ m.status_icon('approx') }} Approx</div>
+      </button>
+      <button class="stat-tile" data-filter="error">
+        <div class="stat-value">{{ ltcg_summary.error }}</div>
+        <div class="stat-label">{{ m.status_icon('error') }} Unmatched</div>
+      </button>
+    </div>
+
+    <div class="results-toolbar">
+      <span class="row-count" data-row-count-for="ltcg">Showing {{ ltcg_summary.total }} of {{ ltcg_summary.total }} rows</span>
+    </div>
+
+    <div class="card">
+      {% if ltcg_rows %}
+      <div class="table-scroll" data-rows-for="ltcg">
+        <table>
+          <thead>
+            <tr>
+              <th>Row</th>
+              <th>Company</th>
+              <th>Sale Amount</th>
+              <th>Units</th>
+              <th>Purchase Date</th>
+              <th>Purchase Cost</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for r in ltcg_rows %}
+            <tr data-status="{{ r.display_status }}">
+              <td class="num">{{ r.excel_row }}</td>
+              <td class="company-cell">
+                <div class="raw" title="{{ r.company_raw }}">{{ r.company_raw }}</div>
+                {% if r.matched_company %}
+                  <div class="matched">matched: {{ r.matched_company }} ({{ '%.0f'|format(r.match_score) }}%)</div>
+                {% else %}
+                  <div class="matched">no broker match found</div>
+                {% endif %}
+              </td>
+              <td class="num">
+                {{ '%.2f'|format(r.mainsheet_sale_amount) }} vs {{ '%.2f'|format(r.broker_sale_amount) }}
+                <div class="{{ 'delta zero' if r.amount_match else 'delta nonzero' }}">&Delta; {{ '%.2f'|format(r.amount_delta) }}</div>
+              </td>
+              <td class="num">
+                {% if r.mainsheet_units is not none %}
+                  {{ '%.0f'|format(r.mainsheet_units) }} vs {{ '%.0f'|format(r.broker_units) }}
+                  <div class="{{ 'delta zero' if r.units_match else 'delta nonzero' }}">&Delta; {{ '%.0f'|format(r.units_delta) }}</div>
+                {% endif %}
+              </td>
+              <td class="num">
+                {% if r.resolved_purchase_date %}
+                  {{ r.resolved_purchase_date }}
+                {% elif r.all_dates and r.all_dates|length > 1 %}
+                  <span class="dates-mixed">multiple: {{ r.all_dates|join(', ') }}</span>
+                {% else %}
+                  <span class="no-value">-</span>
+                {% endif %}
+              </td>
+              <td class="num">{{ '%.2f'|format(r.resolved_purchase_cost) if r.resolved_purchase_cost is not none else '-' }}</td>
+              <td>
+                {{ m.status_badge(r.display_status) }}
+                {% if r.contributing_rows %}
+                <details class="contrib">
+                  <summary>Show {{ r.contributing_rows|length }} broker row(s)</summary>
+                  <div class="contrib-table">
+                    <table>
+                      <thead><tr><th>Broker Row</th><th>Date</th><th>Purchase Amt</th><th>Qty</th><th>Sale Amt</th></tr></thead>
+                      <tbody>
+                        {% for c in r.contributing_rows %}
+                        <tr>
+                          <td class="num">{{ c.excel_row }}</td>
+                          <td class="num">{{ c.date or '-' }}</td>
+                          <td class="num">{{ '%.2f'|format(c.amount) }}</td>
+                          <td class="num">{{ '%.0f'|format(c.extra.qty) }}</td>
+                          <td class="num">{{ '%.2f'|format(c.extra.sale_amount) }}</td>
+                        </tr>
+                        {% endfor %}
+                      </tbody>
+                    </table>
+                  </div>
+                </details>
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+        <p class="empty-note">No Long-Term rows found in the MainSheet.</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="tab-panel" data-tab-panel="stcg">
+    <div class="stat-row" data-filter-section="stcg">
+      <button class="stat-tile active" data-filter="all">
+        <div class="stat-value">{{ stcg_summary.total }}</div>
+        <div class="stat-label">All rows</div>
+      </button>
+      <button class="stat-tile" data-filter="ok">
+        <div class="stat-value">{{ stcg_summary.ok }}</div>
+        <div class="stat-label">{{ m.status_icon('ok') }} Clean</div>
+      </button>
+      <button class="stat-tile" data-filter="mismatch">
+        <div class="stat-value">{{ stcg_summary.mismatch }}</div>
+        <div class="stat-label">{{ m.status_icon('mismatch') }} Mismatch</div>
+      </button>
+      <button class="stat-tile" data-filter="approx">
+        <div class="stat-value">{{ stcg_summary.approx }}</div>
+        <div class="stat-label">{{ m.status_icon('approx') }} Approx</div>
+      </button>
+      <button class="stat-tile" data-filter="error">
+        <div class="stat-value">{{ stcg_summary.error }}</div>
+        <div class="stat-label">{{ m.status_icon('error') }} Unmatched</div>
+      </button>
+    </div>
+
+    <div class="results-toolbar">
+      <span class="row-count" data-row-count-for="stcg">Showing {{ stcg_summary.total }} of {{ stcg_summary.total }} rows</span>
+    </div>
+
+    <div class="card">
+      {% if stcg_rows %}
+      <div class="table-scroll" data-rows-for="stcg">
+        <table>
+          <thead>
+            <tr>
+              <th>Row</th>
+              <th>Company</th>
+              <th>Sale Amount</th>
+              <th>Purchase Date</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for r in stcg_rows %}
+            <tr data-status="{{ r.display_status }}">
+              <td class="num">{{ r.excel_row }}</td>
+              <td class="company-cell">
+                <div class="raw" title="{{ r.company_raw }}">{{ r.company_raw }}</div>
+                {% if r.matched_company %}
+                  <div class="matched">matched: {{ r.matched_company }} ({{ '%.0f'|format(r.match_score) }}%)</div>
+                {% else %}
+                  <div class="matched">no broker match found</div>
+                {% endif %}
+              </td>
+              <td class="num">
+                {{ '%.2f'|format(r.mainsheet_sale_amount) }} vs {{ '%.2f'|format(r.broker_sale_amount) }}
+                <div class="{{ 'delta zero' if r.amount_match else 'delta nonzero' }}">&Delta; {{ '%.2f'|format(r.amount_delta) }}</div>
+              </td>
+              <td class="num">
+                {% if r.resolved_purchase_date %}
+                  {{ r.resolved_purchase_date }}
+                {% elif r.all_dates and r.all_dates|length > 1 %}
+                  <span class="dates-mixed">multiple: {{ r.all_dates|join(', ') }}</span>
+                {% else %}
+                  <span class="no-value">-</span>
+                {% endif %}
+              </td>
+              <td>
+                {{ m.status_badge(r.display_status) }}
+                {% if r.contributing_rows %}
+                <details class="contrib">
+                  <summary>Show {{ r.contributing_rows|length }} broker row(s)</summary>
+                  <div class="contrib-table">
+                    <table>
+                      <thead><tr><th>Broker Row</th><th>Buy Date</th><th>Buy Qty</th><th>Buy Amt</th><th>Sell Amt</th></tr></thead>
+                      <tbody>
+                        {% for c in r.contributing_rows %}
+                        <tr>
+                          <td class="num">{{ c.excel_row }}</td>
+                          <td class="num">{{ c.date or '-' }}</td>
+                          <td class="num">{{ '%.0f'|format(c.extra.buy_qty) }}</td>
+                          <td class="num">{{ '%.2f'|format(c.extra.buy_amount) }}</td>
+                          <td class="num">{{ '%.2f'|format(c.amount) }}</td>
+                        </tr>
+                        {% endfor %}
+                      </tbody>
+                    </table>
+                  </div>
+                </details>
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+        <p class="empty-note">No Short-Term rows found in the MainSheet.</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <a class="back-link" href="{{ url_for('index') }}">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>
+    Run another tally
+  </a>
+{% endblock %}

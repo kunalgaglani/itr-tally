@@ -1,0 +1,15 @@
+{% macro status_icon(status) -%}
+{%- if status == 'ok' -%}
+<svg class="status-icon" viewBox="0 0 24 24" width="13" height="13"><circle cx="12" cy="12" r="10" fill="currentColor"/><path d="M7 12.5l3 3 7-7" stroke="#fff" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+{%- elif status == 'mismatch' -%}
+<svg class="status-icon" viewBox="0 0 24 24" width="13" height="13"><circle cx="12" cy="12" r="10" fill="currentColor"/><path d="M12 7.5v5.5" stroke="#3a2900" stroke-width="2.2" stroke-linecap="round"/><circle cx="12" cy="16.3" r="1.15" fill="#3a2900"/></svg>
+{%- elif status == 'approx' -%}
+<svg class="status-icon" viewBox="0 0 24 24" width="13" height="13"><path d="M12 3.2l9.5 17.6H2.5z" fill="currentColor"/><path d="M12 9.3v5" stroke="#3a1200" stroke-width="2.1" stroke-linecap="round"/><circle cx="12" cy="17" r="1.05" fill="#3a1200"/></svg>
+{%- else -%}
+<svg class="status-icon" viewBox="0 0 24 24" width="13" height="13"><circle cx="12" cy="12" r="10" fill="currentColor"/><path d="M8.5 8.5l7 7M15.5 8.5l-7 7" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/></svg>
+{%- endif -%}
+{%- endmacro %}
+
+{% macro status_badge(status) -%}
+<span class="badge {{ status }}">{{ status_icon(status) }}{{ status }}</span>
+{%- endmacro %}

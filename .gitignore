@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Uploaded/working spreadsheets are personal financial data - never commit them.
+uploads/*
+!uploads/.gitkeep
+*.xls
+*.xlsx
+!tests/fixtures/*.xlsx
+
+.DS_Store

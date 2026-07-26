@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block title %}ITR Tally{% endblock %}
+{% block tagline %}Capital gains reconciliation{% endblock %}
+
+{% block content %}
+  <div class="page-head">
+    <h1>Reconcile your capital gains</h1>
+    <p class="subtitle">Match your tax-portal MainSheet against your broker's LTCG/STCG reports, and see exactly where every purchase date and cost came from.</p>
+  </div>
+
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+      {% for m in messages %}
+        <div class="flash">{{ m }}</div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <div class="card">
+    <form class="upload-form" action="{{ url_for('process') }}" method="post" enctype="multipart/form-data">
+      <div class="upload-steps">
+        <div class="upload-step">
+          <div class="step-head">
+            <span class="step-num">1</span>
+            <span class="step-title">MainSheet</span>
+          </div>
+          <p class="step-hint">Your full list of equity transactions (Long-Term &amp; Short-Term), one row per sale, from the tax portal export.</p>
+          <label class="file-drop" for="mainsheet">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5" /></svg>
+            <div class="file-label" id="mainsheet-label">Choose file</div>
+            <div class="file-name" id="mainsheet-name"></div>
+            <input type="file" id="mainsheet" name="mainsheet" accept=".xls,.xlsx" required>
+          </label>
+        </div>
+
+        <div class="upload-step">
+          <div class="step-head">
+            <span class="step-num">2</span>
+            <span class="step-title">LTCG report</span>
+          </div>
+          <p class="step-hint">Long-term transactions from your broker, grouped by company.</p>
+          <label class="file-drop" for="ltcg">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13l2 2 4-4"/></svg>
+            <div class="file-label" id="ltcg-label">Choose file</div>
+            <div class="file-name" id="ltcg-name"></div>
+            <input type="file" id="ltcg" name="ltcg" accept=".xls,.xlsx" required>
+          </label>
+        </div>
+
+        <div class="upload-step">
+          <div class="step-head">
+            <span class="step-num">3</span>
+            <span class="step-title">STCG report</span>
+          </div>
+          <p class="step-hint">Short-term transactions from your broker, grouped by company.</p>
+          <label class="file-drop" for="stcg">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13l2 2 4-4"/></svg>
+            <div class="file-label" id="stcg-label">Choose file</div>
+            <div class="file-name" id="stcg-name"></div>
+            <input type="file" id="stcg" name="stcg" accept=".xls,.xlsx" required>
+          </label>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button class="submit" type="submit">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          Run tally
+        </button>
+        <span class="row-count">Takes a few seconds - everything runs locally.</span>
+      </div>
+    </form>
+  </div>
+
+  <div class="privacy-note">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3l7 3v6c0 4.5-3 8-7 9-4-1-7-4.5-7-9V6z"/></svg>
+    <span>Nothing is uploaded anywhere - files are processed locally on your machine and deleted right after the report is generated.</span>
+  </div>
+{% endblock %}
