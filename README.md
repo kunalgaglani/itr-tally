@@ -55,6 +55,20 @@ After that, the steps are identical: get the code and double-click
 `run.bat`. `requirements.txt` is written to work with Python 3.8 as well as
 modern Python, so no other changes are needed.
 
+### Troubleshooting: "'python' is not recognized..."
+
+This means Windows can't find Python on PATH yet. `run.bat` already tries
+the `py` launcher as a fallback (which often works even when plain `python`
+doesn't, since it's installed to a system-wide location regardless of the
+"Add to PATH" checkbox) - so this should be rare. If you still hit it:
+
+1. Fully close **every** Command Prompt window and double-click `run.bat`
+   again fresh - PATH changes don't apply to windows that were already open.
+2. Still failing? **Restart the computer.** On Windows 7 especially, PATH
+   updates from an installer don't always take effect until a restart.
+3. Still not found after a restart? Reinstall Python and make sure **"Add
+   python.exe to PATH"** is checked before clicking Install.
+
 ## Manual setup (macOS/Linux, or if you prefer running it yourself)
 
 Requires Python 3.9+.

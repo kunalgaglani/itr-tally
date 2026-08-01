@@ -7,12 +7,21 @@ echo   ITR Tally - one-click launcher
 echo ============================================
 echo.
 
+set "PY_CMD="
 where python >nul 2>nul
-if errorlevel 1 (
-    echo [ERROR] Python is not installed or not on PATH.
+if not errorlevel 1 set "PY_CMD=python"
+
+if not defined PY_CMD (
+    where py >nul 2>nul
+    if not errorlevel 1 set "PY_CMD=py"
+)
+
+if not defined PY_CMD (
+    echo [ERROR] Python is not installed, or isn't on PATH yet.
     echo Install it from https://www.python.org/downloads/
     echo IMPORTANT: on the install screen, check "Add python.exe to PATH".
-    echo Then run this file again.
+    echo If you just installed it, fully close this window and try again -
+    echo or restart your computer if that doesn't help.
     echo.
     pause
     exit /b 1
@@ -37,7 +46,7 @@ if exist ".git" (
 echo.
 if not exist ".venv" (
     echo First-time setup: creating a virtual environment...
-    python -m venv .venv
+    %PY_CMD% -m venv .venv
     if errorlevel 1 (
         echo [ERROR] Could not create the virtual environment.
         pause
