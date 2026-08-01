@@ -1,5 +1,10 @@
-Flask==3.0.3
-pandas==2.2.2
-openpyxl==3.1.5
-xlrd==2.0.1
-rapidfuzz==3.9.6
+# Minimum versions only (no upper pin) so pip resolves the newest release
+# that's actually compatible with whatever Python is installed - this lets
+# the same file work on modern Python and on Python 3.8 (the last version
+# with an official Windows installer for Windows 7). See README's
+# "Windows 7" section.
+Flask>=3.0
+pandas>=1.5.3
+openpyxl>=3.1
+xlrd>=2.0.1
+rapidfuzz>=3.0

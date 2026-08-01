@@ -11,17 +11,49 @@ are processed in a temp folder and deleted as soon as the report is built.
 
 ## Windows quick start (one click)
 
-Requires [Git for Windows](https://git-scm.com/download/win) and
-[Python](https://www.python.org/downloads/) (check **"Add python.exe to
-PATH"** during install) to be installed once, beforehand.
+**Only Python is required.** Git is optional - it just lets `run.bat`
+auto-pull updates for you.
 
-1. Clone or download this repo.
-2. Double-click **`run.bat`**.
+1. Get the code, either way:
+   - **Easiest, no Git needed:** on this repo's GitHub page, click the green
+     **Code** button → **Download ZIP** → extract it anywhere.
+   - **Or, if you have [Git for Windows](https://git-scm.com/download/win):**
+     `git clone` the repo instead - then `run.bat` can auto-update itself on
+     every run.
+2. Install [Python](https://www.python.org/downloads/) (check **"Add
+   python.exe to PATH"** during install).
+3. Double-click **`run.bat`** inside the folder.
 
-That's it - it pulls the latest code, sets up the virtual environment,
-installs everything it needs, starts the app, and opens your browser to it
-automatically. Re-run `run.bat` any time (e.g. after the app is updated) -
-it's safe to run repeatedly.
+**On Windows 7? See the [Windows 7](#windows-7-important) section below
+instead** - the latest Python download no longer installs on Windows 7.
+
+`run.bat` sets up the virtual environment, installs everything it needs,
+starts the app, and opens your browser to it automatically. Re-run it any
+time - it's safe to run repeatedly. If you used the ZIP option, "updating"
+just means downloading a fresh ZIP later and re-extracting over the folder.
+
+### Windows 7 (important)
+
+Windows 7 has been out of support from Microsoft since January 2020, and
+Python has since dropped support for it too - the normal Python download
+above will give you an installer that **won't run** on Windows 7. Use this
+specific older version instead (still official, just not the newest):
+
+- **Python 3.8.10** - the last python.org release with a Windows installer
+  that supports Windows 7.
+  [Download here](https://www.python.org/downloads/release/python-3810/)
+  (pick "Windows installer (64-bit)" for a normal 64-bit PC). During setup,
+  still check **"Add python.exe to PATH"**.
+
+If you'd rather use Git than download a ZIP, Git for Windows has also
+dropped Windows 7 support - use
+[Git for Windows 2.46.2](https://github.com/git-for-windows/git/releases/tag/v2.46.2.windows.1)
+(the `Git-2.46.2-64-bit.exe` asset) instead of the latest download. Simplest
+is still to skip Git entirely and use the ZIP option above.
+
+After that, the steps are identical: get the code and double-click
+`run.bat`. `requirements.txt` is written to work with Python 3.8 as well as
+modern Python, so no other changes are needed.
 
 ## Manual setup (macOS/Linux, or if you prefer running it yourself)
 

@@ -7,15 +7,6 @@ echo   ITR Tally - one-click launcher
 echo ============================================
 echo.
 
-where git >nul 2>nul
-if errorlevel 1 (
-    echo [ERROR] Git is not installed or not on PATH.
-    echo Install it from https://git-scm.com/download/win then run this file again.
-    echo.
-    pause
-    exit /b 1
-)
-
 where python >nul 2>nul
 if errorlevel 1 (
     echo [ERROR] Python is not installed or not on PATH.
@@ -28,13 +19,19 @@ if errorlevel 1 (
 )
 
 if exist ".git" (
-    echo Checking for updates...
-    git pull
+    where git >nul 2>nul
     if errorlevel 1 (
-        echo [WARNING] Could not pull the latest changes - continuing with the code already on disk.
+        echo [WARNING] Git is not installed or not on PATH - skipping update check.
+    ) else (
+        echo Checking for updates...
+        git pull
+        if errorlevel 1 (
+            echo [WARNING] Could not pull the latest changes - continuing with the code already on disk.
+        )
     )
 ) else (
-    echo [WARNING] This folder is not a git checkout - skipping update check.
+    echo This is a plain folder ^(not a git checkout^) - skipping update check.
+    echo To get future updates, re-download the ZIP from GitHub and replace this folder.
 )
 
 echo.
